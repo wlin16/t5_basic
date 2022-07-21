@@ -1,3 +1,4 @@
+import sys
 import pickle
 import os
 import numpy as np
@@ -19,22 +20,25 @@ def unpickler(dir, chain_id):
 
 if __name__=="__main__":
 	embedder = ProtTransT5BFDEmbedder()
-
-	df = pd.read_csv('../datasets/PPI/NEEL-generated_dataset/PPI_validation_dataset_NS.tsv', delimiter='\t')
-	output_dir = 'PPI_sequence_embeddings/'
+	df = pd.read_csv('example_df.csv')
+	output_dir = 't5_sequence_embeddings/'
 	if not os.path.exists(output_dir):
 		os.mkdir(output_dir)
-
-
-	for i, row in df.iterrows():
-		# seq = row.sequence
-
-		chain_id = row.PDBID + row.CHAIN
-		fasta, pdb, mapping = get_gcf_sequences_and_mapping(chain_id)
-		seq = fasta
-		embed_chain = np.asarray(embedder.embed(seq))
-		embed_dict = {
-			'sequence': seq,
-			'sequence_embedding': embed_chain
-		}
-		pickler(embed_dict, output_dir, chain_id)
+	try:
+		# if running as an array job process one row based on integer passed as argument then quit
+		args = sys.argv
+		row_index = int(args[1]) - 1
+	except:
+		# if not in array-job mode iterate through whole dataset
+		for i, row in df.iterrows():
+			chain_id = row.PDBID + row.CHAIN
+			if 'sequence' in df.columns:
+				seq = row.sequence
+			else:
+				seq, pdb, mapping = get_gcf_sequences_and_mapping(chain_id)
+			embed_chain = np.asarray(embedder.embed(seq))
+			embed_dict = {
+				'sequence': seq,
+				'sequence_embedding': embed_chain
+			}
+			pickler(embed_dict, output_dir, chain_id)
