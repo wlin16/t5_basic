@@ -19,9 +19,9 @@
 #$ -S /bin/bash
 #$ -j y
 #$ -N t5
-#$ -wd /home/jwells/t5_basic
-#The code you want to run now goes here.
+#$ -wd /SAN/cath/cath_v4_3_0/jude/t5_basic
 
+#The code you want to run now goes here.
 hostname
 date
 #export PATH=/share/apps/python-3.8.5-shared/bin:$PATH
